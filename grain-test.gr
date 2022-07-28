@@ -359,6 +359,7 @@ export let assertThat = (value, matcher) => {
  * Asserts that a value fulfills a given matcher, with a message to display upon failure (the message is prepended with `"Expected that "` in output).
  * (note: does not use the native grain `assert`)
  * 
+ * @param message: a message to be printed in the case that the assertion fails
  * @param value: a value to match against
  * @param matcher: a matcher to apply to the value
  */

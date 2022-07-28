@@ -391,6 +391,7 @@ Parameters:
 
 |param|type|description|
 |-----|----|-----------|
-|`value`|`String`|a value to match against|
-|`matcher`|`a`|a matcher to apply to the value|
+|`message`|`String`|a message to be printed in the case that the assertion fails|
+|`value`|`a`|a value to match against|
+|`matcher`|`a -> AssertionInfo`|a matcher to apply to the value|
 

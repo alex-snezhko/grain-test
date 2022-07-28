@@ -4,7 +4,9 @@ A lightweight testing framework for the Grain programming language.
 
 ## Usage Guide
 
-Grain-test is comprised of the core testing library: `grain-test.gr`, and a Python test runner script: `run-tests` (optional but very useful). To get started, let's jump into our project and get these files (for the sake of example, we'll assume that our tests will be located in the root of our project, although you may not always want it this way); for example, on Linux/MacOS
+### Getting started
+
+Grain-test is comprised of the core testing library: `grain-test.gr`, and a Python test runner script: `run-tests` (optional but very useful). To get started, let's jump into our project and get these files (for the sake of example, we'll assume that our tests will be located in the root of our project, although you may not always want it this way); for example, on Linux/MacOS:
 ```
 cd /location/of/my/project
 curl https://raw.githubusercontent.com/alexsnezhko3/grain-test/main/run-tests -o run-tests
@@ -13,7 +15,7 @@ curl https://raw.githubusercontent.com/alexsnezhko3/grain-test/main/grain-test.g
 ```
 
 
-### Basic usage example
+### Basic example
 
 Now that we have what we need, let's get started! Let's assume that we want to write tests against this code:
 ```
@@ -36,9 +38,9 @@ test("our code works", () => {
 })
 ```
 
-We can already see a few things being used here: we are invoking the `test` function, giving it a description of what our test is doing, and then passing it a function which will actually run our tests. Inside of our test, we are calling our code and then making sure that it returns what we expect. Here, `equals` is a "matcher" that will, as the name indicates, attempt to match the value given in the assertion to the value we give the matcher, in this case `Example.square(3)` and `9` respectively. Now let's run all of our tests with the test runner script.
+We can already see a few things being used here: we are invoking the `test` function to run a test, giving it a description of what our test is doing. We use the `assertThat` function to verify our code does what we expect it to, and use the `equals(...)` matcher in our assertion which will. As the name indicates, this matcher will attempt to match the first argument given to `assertThat` to the value we give the matcher, in this case `Example.square(3)` and `9` respectively. Now let's run our test; you can either run it directly like `grain example.test.gr`, or use the test runner script, which we will be doing.
 
-First, ensure that you have a valid Python 3 installation on your `PATH`. The script is shebanged to use Python by default, so if you are on Linux or MacOS, you can simply run:
+To run the test runner, first ensure that you have a valid Python 3 installation on your `PATH`. The script is "shebanged" to use Python by default, so if you are on Linux or MacOS, you can simply run:
 ```
 ./run-tests
 ```
@@ -56,7 +58,7 @@ Tests: 1 passed
 ```
 By default, the test runner script will search for all files with the extension `.test.gr`, but we'll see how we can change this, as well as further customize how the script works, later.
 
-If we have a bug in our code (say we mistakenly defined `square` as `export let square = (a) => a + a`), we'll see that our test now fails, with a description of what went wrong
+If we have a bug in our code (say we mistakenly defined `square` as `export let square = (a) => a + a`), we'll see that our test now fails, with a description of what went wrong as caught by our assertion
 ```
 Running ./example.test.gr
   ✗ our code works
@@ -112,8 +114,10 @@ Running ./example.test.gr
 
 Tests: 3 passed, 1 failed
 ```
-In this example, we used tuples for our test case values, but we just as easily could have used any other value; for example, records:
+In this example, we used tuples for our test case values, but all that `testMultiple` does is pass down each value in the list to the callback function running our tests. Therefore, we just as easily could have used any other types of values; here's an example using records, clarifying the role of each value in the inputs:
 ```
+// ...
+
 record TestInput {
   low: Number,
   high: Number,
@@ -132,7 +136,7 @@ testMultiple("...", [
 
 ### Creating test suites
 
-We can group our tests into test suites, which allows us to better organize our tests and also enables some additional functionality as we'll see in a moment. Let's define a test suite:
+We can group our tests into test suites, which allows us to better organize our tests and also enables some additional functionality. Let's define a test suite:
 ```
 import * from "./grain-test"
 // implementation elided
@@ -140,7 +144,7 @@ import MyCode from "./mycode"
 
 testSuite("all of our code works", [
   Test("our first function works", () => {
-    // test our first function
+    assertThat(MyCode.firstFunction(1, 2), equals(3))
   }),
   Test("our second function works", () => {
     // test our second function
@@ -152,7 +156,7 @@ testSuite("all of our code works", [
 ```
 Here we see that we have grouped several tests together under one unit, specifying several actions to run in our test suite in a list. Please be aware that the `Test` and `TestMultiple` used here are **not** the same as the `test` and `testMultiple` functions we used in previous examples; the former are enum variants which allow us to register actions to be run as part of a test suite, and the latter are functions which immediately invoke a test.
 
-Test suites not only provide organizational structure to our tests, but they also enable additional functionality such as running code before and/or after each test (or before/after the whole suite). This can be useful in the case that we want to run side effects which our code relies on to work properly. For example, if we are testing code that mutates a file, we can leverage this functionality to create/initialize the file before each test, and then wipe the file after each test. Here is an example showing all of the additional actions you can specify as part of a test suite:
+Test suites not only provide organizational structure to our tests, but they also enable additional functionality for our tests, such as allowing you to specify code to be run before and/or after each test (or before/after the whole suite). This can be useful in the case that we want to run side effects which our code under test relies on to work properly. For example, if we are testing code that mutates a file, we can leverage this functionality to create/initialize the file before each test, and then wipe the file after each test. Here is an example showing all of the additional actions you can specify as part of a test suite:
 ```
 // ...
 
@@ -184,7 +188,7 @@ Side note: you may be wondering: "What is the point of `BeforeAll` and `AfterAll
 
 ### More on matchers and assertions
 
-So far, we have only been using the `equals` matcher, but there are several other matchers built in to grain test; both simple matchers that match a value against another value, and compound matchers that take matchers as inputs! Here is a mishmash of different matchers available out of the box:
+So far, we have only been using the `equals` matcher, but there are several other matchers built in to grain test; both simple matchers that match a value against another value, and compound matchers that take other matchers as inputs! Here is a mishmash of different matchers available out of the box:
 ```
 import * from "./grain-test"
 
@@ -212,7 +216,7 @@ test("test a bunch of stuff", () => {
   assertThat(Some(42), not(isNone))
 
   // matches if both matchers succeed
-  assertThat(2, both(equals(2), notEquals(3)))
+  assertThat(2, both(equals(2), not(equals(3))))
 
   // matches if either matcher succeeds
   assertThat(true, either(isTrue, isFalse))
@@ -231,8 +235,8 @@ import * from "./grain-test"
 import Set from "set"
 
 // a custom matcher that checks if two lists have the same elements
-let hasSameElementsAs = binaryMatcher((first, second) => {
-  let passed = Set.fromList(first) == Set.fromList(second)
+let hasSameElementsAs = binaryMatcher((firstList, secondList) => {
+  let passed = Set.fromList(firstList) == Set.fromList(secondList)
 
   // this function must return a record of type AssertionInfo, which is exported from grain-test
   {
@@ -240,17 +244,23 @@ let hasSameElementsAs = binaryMatcher((first, second) => {
     passed,
     // a function that returns the failure message if the test fails;
     // it is prefixed by "Expected " in the output if the test fails
-    computeFailMsg: () => toString(first) ++ " to have the same elements as " ++ toString(second)
+    computeFailMsg: () => toString(firstList) ++ " to have the same elements as " ++ toString(secondList)
   }
 })
 
 // a custom matcher that checks if a number is even
-let isEven = unaryMatcher((value) => {
-  { passed: value % 2 == 0, computeFailMsg: () => toString(value) ++ " to be an even number" }
+let isEven = unaryMatcher((numValue) => {
+  { passed: numValue % 2 == 0, computeFailMsg: () => toString(numValue) ++ " to be an even number" }
 })
 
 test("my custom matchers work", () => {
+  // we call hasSameElementsAs, a binary matcher, with a second value;
+  // in this case, [1, 2, 3] will be passed to the "firstList" parameter,
+  // and [2, 3, 1] to the "secondList" parameter of the matching function
   assertThat([1, 2, 3], hasSameElementsAs([2, 3, 1]))
+
+  // we pass isEven, a unary matcher, directly to assertThat;
+  // in this case, 4 will be passed to the "numValue" parameter of the matching function
   assertThat(4, isEven)
 })
 ```
@@ -271,7 +281,7 @@ test("...", () => {
 
 | Description | Flag | Default | Example |
 | ----------- | ---- | ------- | ------- |
-| Regex to use to match test files relative to the location of this script | `-r` or `--regex` | `.+\.test\.gr$` | `./run-tests --regex .+_test\.gr` |
+| Regex to use to match test files (relative to location of script) | `-r` or `--regex` | `.+\.test\.gr$` | `./run-tests --regex .+_test\.gr` |
 | Directory to start searching for tests in (relative to location of script) | `-d` or `--dir` | `.` | `./run-tests --dir ./tests` |
 | Directories to exclude when searching for test files | `-e` or `--exclude-dir` | `[]` | `./run-tests --exclude-dir ./target --exclude-dir ./forbidden` |
 | A flag to indicate that only failing tests should be shown | `-f` or `--only-failing` | disabled | `./run-tests --only-failing` |
