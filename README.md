@@ -1,5 +1,5 @@
 # grain-test
-A lightweight testing framework for the Grain programming language.
+A lightweight testing framework for the Grain programming language 🌾
 
 
 ## Usage Guide
@@ -265,31 +265,37 @@ test("my custom matchers work", () => {
 })
 ```
 
-We can also add custom messages for our assertions to be displayed if they fail with `assertWithMsgThat`.
+We can also add custom messages for our assertions to be displayed if they fail with `assertWithMsgThat`. The message we give it will be prefixed by "Expected that " in the output if the test fails.
 ```
 // ...
 
 test("...", () => {
-  assertWithMsgThat("the file is read correctly", MyCode.readFile("hello.txt"), equals(Some("Hello, world!")))
+  assertWithMsgThat("the file was read correctly", MyCode.readFile("hello.txt"), equals(Some("Hello, world!")))
 })
 ```
 
 
 ## The test runner script
 
-`run-tests` is a simple Python script that runs all of your tests. Its default behavior can be changed with various flags.
+`run-tests` is a simple Python script that runs all of your tests. Its default behavior can be changed with various CLI flags.
 
-| Description | Flag | Default | Example |
-| ----------- | ---- | ------- | ------- |
-| Regex to use to match test files (relative to location of script) | `-r` or `--regex` | `.+\.test\.gr$` | `./run-tests --regex .+_test\.gr` |
-| Directory to start searching for tests in (relative to location of script) | `-d` or `--dir` | `.` | `./run-tests --dir ./tests` |
-| Directories to exclude when searching for test files | `-e` or `--exclude-dir` | `[]` | `./run-tests --exclude-dir ./target --exclude-dir ./forbidden` |
-| A flag to indicate that only failing tests should be shown | `-f` or `--only-failing` | disabled | `./run-tests --only-failing` |
-| A flag to indicate that output should be given without any dressing i.e. text coloring, special unicode characters | `-p` or `--plain` | disabled | `./run-tests --plain` |
-| A flag to indicate that no more tests should be ran after the first failing test | `-b` or `--bail-upon-failure` | disabled | `./run-tests --bail-upon-failure` |
+| Flag                          | Description | Default Value | Example |
+| ----------------------------- | ----------- | ------------- | ------- |
+| `-r` or `--regex`             | Regex to use to match test files (relative to location of script) | `.+\.test\.gr$` | `./run-tests --regex '.+_test\.gr$'` |
+| `-d` or `--dir`               | Directory to start searching for tests in (relative to location of script) | `.` | `./run-tests --dir ./tests` |
+| `-e` or `--exclude-dir`       | Directories to exclude when searching for test files | `[]` | `./run-tests --exclude-dir ./target --exclude-dir ./forbidden` |
+| `-f` or `--only-failing`      | A flag to indicate that only failing tests should be shown | disabled | `./run-tests --only-failing` |
+| `-p` or `--plain`             | A flag to indicate that output should be given without any dressing i.e. text coloring, special unicode characters | disabled | `./run-tests --plain` |
+| `-b` or `--bail-upon-failure` | A flag to indicate that no more tests should be ran after the first failing test | disabled | `./run-tests --bail-upon-failure` |
+
 
 ## API docs
 Docs for the `grain-test.gr` API can be found [here](https://github.com/alexsnezhko3/grain-test/blob/main/api-docs.md)
 
+
 ## Contributing
 If you feel that some improvement can be made to the documentation or any other artifacts, feel free to open an issue or create a pull request!
+
+
+## Acknowledgements
+This library is heavily inspired by both Jest and Hamcrest. Kudos to the authors of these libraries for the great ideas :)
